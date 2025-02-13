@@ -3,8 +3,12 @@ package cmd
 import (
 	"log"
 
+	"github.com/MohamedMosalm/To-Do-List/cmd/api/handlers"
+	"github.com/MohamedMosalm/To-Do-List/cmd/api/routes"
 	"github.com/MohamedMosalm/To-Do-List/config"
 	"github.com/MohamedMosalm/To-Do-List/models"
+	repositories "github.com/MohamedMosalm/To-Do-List/repositories/taskRepository"
+	"github.com/MohamedMosalm/To-Do-List/services"
 	"github.com/gin-gonic/gin"
 
 	"gorm.io/driver/postgres"
@@ -21,13 +25,19 @@ func StartServer(config config.AppConfig) {
 
 	log.Println("Connected to the database")
 
-	if err := db.AutoMigrate(&models.User{}, &models.Task{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}); err != nil {
 		log.Fatalf("database migration failed: %v\n", err)
 	}
 
-	if err := r.Run(config.ServerPort); err != nil {
-		log.Fatalf("could not start server: %v\n", err)
+	if err := db.AutoMigrate(&models.Task{}); err != nil {
+		log.Fatalf("database migration failed: %v\n", err)
 	}
+
+	taskRepo := repositories.NewGormTaskRepository(db)
+	taskService := services.NewTaskService(taskRepo)
+	taskHandler := handlers.NewTaskHandler(taskService)
+
+	routes.SetupTaskRoutes(r, taskHandler)
 
 	if err := r.Run(config.ServerPort); err != nil {
 		log.Fatalf("could not start server: %v\n", err)
