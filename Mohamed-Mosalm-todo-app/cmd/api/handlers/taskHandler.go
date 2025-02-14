@@ -129,11 +129,16 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 		return
 	}
 
-	existingTask.Title = updateDTO.Title
-	existingTask.Description = updateDTO.Description
-	existingTask.Status = updateDTO.Status
+	updates := make(map[string]interface{})
+	if updateDTO.Title != "" {
+		updates["title"] = updateDTO.Title
+	}
+	if updateDTO.Description != "" {
+		updates["description"] = updateDTO.Description
+	}
+	updates["status"] = updateDTO.Status
 
-	if err := h.taskService.UpdateTask(existingTask); err != nil {
+	if err := h.taskService.UpdateTask(taskID, updates); err != nil {
 		appErr := errors.ErrUpdateTaskFailed
 		appErr.Details = err
 		httputil.HandleError(c, appErr)

@@ -9,7 +9,7 @@ import (
 type TaskService interface {
 	CreateTask(task *models.Task) error
 	GetTasksByUserID(userID uuid.UUID) ([]models.Task, error)
-	UpdateTask(task *models.Task) error
+	UpdateTask(taskID uuid.UUID, updates map[string]interface{}) error
 	DeleteTask(taskID, userID uuid.UUID) error
 	GetTaskByID(taskID uuid.UUID) (*models.Task, error)
 }
@@ -30,8 +30,8 @@ func (s *taskService) GetTasksByUserID(userID uuid.UUID) ([]models.Task, error) 
 	return s.taskRepo.GetTasksByUserID(userID)
 }
 
-func (s *taskService) UpdateTask(task *models.Task) error {
-	return s.taskRepo.UpdateTask(task)
+func (s *taskService) UpdateTask(taskID uuid.UUID, updates map[string]interface{}) error {
+	return s.taskRepo.UpdateTask(taskID, updates)
 }
 
 func (s *taskService) DeleteTask(taskID, userID uuid.UUID) error {

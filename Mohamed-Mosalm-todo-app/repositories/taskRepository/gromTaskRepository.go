@@ -29,11 +29,8 @@ func (r *gormTaskRepository) GetTasksByUserID(userID uuid.UUID) ([]models.Task, 
 	return tasks, nil
 }
 
-func (r *gormTaskRepository) UpdateTask(task *models.Task) error {
-	if err := r.db.Save(task).Error; err != nil {
-		return err
-	}
-	return nil
+func (r *gormTaskRepository) UpdateTask(taskID uuid.UUID, updates map[string]interface{}) error {
+	return r.db.Model(&models.Task{}).Where("id = ?", taskID).Updates(updates).Error
 }
 
 func (r *gormTaskRepository) DeleteTask(taskID, userID uuid.UUID) error {
