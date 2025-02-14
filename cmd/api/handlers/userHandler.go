@@ -9,13 +9,11 @@ import (
 	"github.com/MohamedMosalm/To-Do-List/utils/auth"
 	"github.com/MohamedMosalm/To-Do-List/utils/errors"
 	"github.com/MohamedMosalm/To-Do-List/utils/httputil"
-	"github.com/MohamedMosalm/To-Do-List/utils/validator"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
 	userService     services.UserService
-	authValidator   *validator.AuthValidator
 	jwtService      *auth.JWTService
 	passwordService *auth.PasswordService
 }
@@ -28,7 +26,6 @@ func NewAuthHandler(userService services.UserService) (*AuthHandler, error) {
 
 	return &AuthHandler{
 		userService:     userService,
-		authValidator:   validator.NewAuthValidator(),
 		jwtService:      jwtService,
 		passwordService: auth.NewPasswordService(),
 	}, nil
@@ -39,13 +36,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&registerDTO); err != nil {
 		appErr := errors.ErrInvalidRequest
-		appErr.Details = err
-		httputil.HandleError(c, appErr)
-		return
-	}
-
-	if err := h.authValidator.ValidateRegisterDTO(&registerDTO); err != nil {
-		appErr := errors.ErrValidationError
 		appErr.Details = err
 		httputil.HandleError(c, appErr)
 		return
@@ -93,16 +83,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if err := h.authValidator.ValidateLoginDTO(&loginDTO); err != nil {
-		appErr := errors.ErrValidationError
-		appErr.Details = err
-		httputil.HandleError(c, appErr)
-		return
-	}
-
 	user, err := h.userService.FindUserByEmail(loginDTO.Email)
 	if err != nil {
-		httputil.HandleError(c, errors.ErrUserNotFound)
+		httputil.HandleError(c, errors.ErrInvalidCredentials)
 		return
 	}
 

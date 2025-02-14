@@ -8,21 +8,18 @@ import (
 	"github.com/MohamedMosalm/To-Do-List/services"
 	"github.com/MohamedMosalm/To-Do-List/utils/errors"
 	"github.com/MohamedMosalm/To-Do-List/utils/httputil"
-	"github.com/MohamedMosalm/To-Do-List/utils/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type TaskHandler struct {
-	taskService   services.TaskService
-	taskValidator *validator.TaskValidator
+	taskService services.TaskService
 }
 
 func NewTaskHandler(taskService services.TaskService) *TaskHandler {
 	return &TaskHandler{
-		taskService:   taskService,
-		taskValidator: validator.NewTaskValidator(),
+		taskService: taskService,
 	}
 }
 
@@ -31,13 +28,6 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&createTaskDTO); err != nil {
 		appErr := errors.ErrInvalidRequest
-		appErr.Details = err
-		httputil.HandleError(c, appErr)
-		return
-	}
-
-	if err := h.taskValidator.ValidateCreateTaskDTO(&createTaskDTO); err != nil {
-		appErr := errors.ErrValidationError
 		appErr.Details = err
 		httputil.HandleError(c, appErr)
 		return
@@ -54,7 +44,7 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 	task := models.Task{
 		Title:       createTaskDTO.Title,
 		Description: createTaskDTO.Description,
-		Status:      createTaskDTO.Status,
+		Status:      false, // Or createTaskDTO.Status if you add it to the DTO
 		UserID:      userID,
 	}
 
@@ -141,7 +131,7 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	existingTask.Title = updateDTO.Title
 	existingTask.Description = updateDTO.Description
-	existingTask.Status = updateDTO.Status
+	existingTask.Status = updateDTO.Status // No validation needed here
 
 	if err := h.taskService.UpdateTask(existingTask); err != nil {
 		appErr := errors.ErrUpdateTaskFailed
