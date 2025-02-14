@@ -9,6 +9,7 @@ This is a To-Do List application built with Go, Gin, and GORM. It provides user 
   - [Authentication](#authentication)
   - [Tasks](#tasks)
 - [Usage Examples](#usage-examples)
+- [Running Tests](#running-tests)
 
 ## Setup Instructions
 
@@ -52,6 +53,14 @@ This is a To-Do List application built with Go, Gin, and GORM. It provides user 
    go mod download
    go run main.go
    ```
+
+## Running Tests
+
+To run tests, use the following command:
+
+```sh
+go test ./...
+```
 
 ## API Documentation
 
