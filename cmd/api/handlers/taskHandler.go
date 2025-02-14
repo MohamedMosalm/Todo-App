@@ -1,45 +1,53 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/MohamedMosalm/To-Do-List/dtos"
 	"github.com/MohamedMosalm/To-Do-List/models"
 	"github.com/MohamedMosalm/To-Do-List/services"
-	"github.com/MohamedMosalm/To-Do-List/utils"
+	"github.com/MohamedMosalm/To-Do-List/utils/errors"
+	"github.com/MohamedMosalm/To-Do-List/utils/httputil"
+	"github.com/MohamedMosalm/To-Do-List/utils/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type TaskHandler struct {
-	taskService services.TaskService
+	taskService   services.TaskService
+	taskValidator *validator.TaskValidator
 }
 
 func NewTaskHandler(taskService services.TaskService) *TaskHandler {
-	return &TaskHandler{taskService: taskService}
+	return &TaskHandler{
+		taskService:   taskService,
+		taskValidator: validator.NewTaskValidator(),
+	}
 }
 
 func (h *TaskHandler) CreateTask(c *gin.Context) {
 	var createTaskDTO dtos.CreateTaskDTO
 
 	if err := c.ShouldBindJSON(&createTaskDTO); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Invalid request body",
-			"details": err.Error(),
-		})
+		appErr := errors.ErrInvalidRequest
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	if err := utils.ValidateCreateTaskDTO(&createTaskDTO); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := h.taskValidator.ValidateCreateTaskDTO(&createTaskDTO); err != nil {
+		appErr := errors.ErrValidationError
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	userID, err := uuid.Parse(createTaskDTO.UserID)
+	userID, err := uuid.Parse(c.GetString("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		appErr := errors.ErrInvalidUserID
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
@@ -51,29 +59,33 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 	}
 
 	if err := h.taskService.CreateTask(&task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create task",
-		})
+		appErr := errors.ErrCreateTaskFailed
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	c.JSON(http.StatusCreated, dtos.NewTaskResponseDTO(&task))
+	httputil.SendSuccess(c, http.StatusCreated, "Task created successfully", dtos.NewTaskResponseDTO(&task))
 }
 
 func (h *TaskHandler) GetTasks(c *gin.Context) {
-	userID, err := utils.ExtractAndValidateUserID(c)
+	userID, err := uuid.Parse(c.GetString("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		appErr := errors.ErrInvalidUserID
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
 	tasks, err := h.taskService.GetTasksByUserID(userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "No tasks found"})
+		if err == gorm.ErrRecordNotFound {
+			httputil.SendSuccess(c, http.StatusOK, "No tasks found", []dtos.TaskResponseDTO{})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve tasks"})
+		appErr := errors.ErrFetchTasksFailed
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
@@ -82,87 +94,105 @@ func (h *TaskHandler) GetTasks(c *gin.Context) {
 		taskResponses[i] = *dtos.NewTaskResponseDTO(&task)
 	}
 
-	c.JSON(http.StatusOK, taskResponses)
+	httputil.SendSuccess(c, http.StatusOK, "Tasks retrieved successfully", taskResponses)
 }
 
 func (h *TaskHandler) UpdateTask(c *gin.Context) {
-	taskID, err := utils.ExtractAndValidateTaskID(c)
+	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		appErr := errors.ErrInvalidTaskID
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	userID, err := utils.ExtractAndValidateUserID(c)
+	userID, err := uuid.Parse(c.GetString("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		appErr := errors.ErrInvalidUserID
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
 	var updateDTO dtos.UpdateTaskDTO
 	if err := c.ShouldBindJSON(&updateDTO); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Invalid request body",
-			"details": err.Error(),
-		})
+		appErr := errors.ErrInvalidRequest
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
 	existingTask, err := h.taskService.GetTaskByID(taskID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+		if err == gorm.ErrRecordNotFound {
+			httputil.HandleError(c, errors.ErrTaskNotFound)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve task"})
+		appErr := errors.ErrFetchTasksFailed
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
 	if existingTask.UserID != userID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Not authorized to update this task"})
+		httputil.HandleError(c, errors.ErrUnauthorized)
 		return
 	}
 
-	updatedTask := utils.ApplyTaskUpdates(existingTask, &updateDTO)
-	if err := h.taskService.UpdateTask(updatedTask); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+	existingTask.Title = updateDTO.Title
+	existingTask.Description = updateDTO.Description
+	existingTask.Status = updateDTO.Status
+
+	if err := h.taskService.UpdateTask(existingTask); err != nil {
+		appErr := errors.ErrUpdateTaskFailed
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	c.JSON(http.StatusOK, dtos.NewTaskResponseDTO(updatedTask))
+	httputil.SendSuccess(c, http.StatusOK, "Task updated successfully", dtos.NewTaskResponseDTO(existingTask))
 }
 
 func (h *TaskHandler) DeleteTask(c *gin.Context) {
-	taskID, err := utils.ExtractAndValidateTaskID(c)
+	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		appErr := errors.ErrInvalidTaskID
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	userID, err := utils.ExtractAndValidateUserID(c)
+	userID, err := uuid.Parse(c.GetString("user_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		appErr := errors.ErrInvalidUserID
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
 	existingTask, err := h.taskService.GetTaskByID(taskID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+		if err == gorm.ErrRecordNotFound {
+			httputil.HandleError(c, errors.ErrTaskNotFound)
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve task"})
+		appErr := errors.ErrFetchTasksFailed
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
 	if existingTask.UserID != userID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Not authorized to delete this task"})
+		httputil.HandleError(c, errors.ErrUnauthorized)
 		return
 	}
 
 	if err := h.taskService.DeleteTask(taskID, userID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete task"})
+		appErr := errors.ErrDeleteTaskFailed
+		appErr.Details = err
+		httputil.HandleError(c, appErr)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully"})
+	httputil.SendSuccess(c, http.StatusOK, "Task deleted successfully", nil)
 }

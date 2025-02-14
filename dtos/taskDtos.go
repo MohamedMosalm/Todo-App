@@ -11,7 +11,6 @@ type CreateTaskDTO struct {
 	Title       string `json:"title" binding:"required,max=100"`
 	Description string `json:"description" binding:"max=500"`
 	Status      bool   `json:"status"`
-	UserID      string `json:"user_id" binding:"required,uuid"`
 }
 
 type UpdateTaskDTO struct {

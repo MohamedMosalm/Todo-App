@@ -30,13 +30,15 @@ func StartServer(config config.AppConfig) {
 	taskService := services.NewTaskService(taskRepo)
 	taskHandler := handlers.NewTaskHandler(taskService)
 
-	routes.SetupTaskRoutes(r, taskHandler)
-
 	userRepo := userRepository.NewGormUserRepository(db)
 	userService := services.NewUserService(userRepo)
-	userHandler := handlers.NewAuthHandler(userService)
+	userHandler, err := handlers.NewAuthHandler(userService)
+	if err != nil {
+		log.Fatalf("Failed to create auth handler: %v", err)
+	}
 
 	routes.SetupAuthRoutes(r, userHandler)
+	routes.SetupTaskRoutes(r, taskHandler, config.JWTSecret)
 
 	if err := r.Run(config.ServerPort); err != nil {
 		log.Fatalf("could not start server: %v\n", err)
