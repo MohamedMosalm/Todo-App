@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/MohamedMosalm/To-Do-List/models"
-	repositories "github.com/MohamedMosalm/To-Do-List/repositories/userRepository"
+	userRepository "github.com/MohamedMosalm/To-Do-List/repositories/userRepository"
 	"github.com/google/uuid"
 )
 
@@ -13,10 +13,10 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepo repositories.UserRepository
+	userRepo userRepository.UserRepository
 }
 
-func NewUserService(userRepo repositories.UserRepository) UserService {
+func NewUserService(userRepo userRepository.UserRepository) UserService {
 	return &userService{userRepo: userRepo}
 }
 

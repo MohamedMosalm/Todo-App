@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/MohamedMosalm/To-Do-List/models"
-	repositories "github.com/MohamedMosalm/To-Do-List/repositories/taskRepository"
+	taskRepository "github.com/MohamedMosalm/To-Do-List/repositories/taskRepository"
 	"github.com/google/uuid"
 )
 
@@ -15,10 +15,10 @@ type TaskService interface {
 }
 
 type taskService struct {
-	taskRepo repositories.TaskRepository
+	taskRepo taskRepository.TaskRepository
 }
 
-func NewTaskService(taskRepo repositories.TaskRepository) TaskService {
+func NewTaskService(taskRepo taskRepository.TaskRepository) TaskService {
 	return &taskService{taskRepo: taskRepo}
 }
 
