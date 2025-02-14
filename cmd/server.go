@@ -6,31 +6,23 @@ import (
 	"github.com/MohamedMosalm/To-Do-List/cmd/api/handlers"
 	"github.com/MohamedMosalm/To-Do-List/cmd/api/routes"
 	"github.com/MohamedMosalm/To-Do-List/config"
+	"github.com/MohamedMosalm/To-Do-List/database"
 	"github.com/MohamedMosalm/To-Do-List/models"
 	taskRepository "github.com/MohamedMosalm/To-Do-List/repositories/taskRepository"
 	userRepository "github.com/MohamedMosalm/To-Do-List/repositories/userRepository"
 	"github.com/MohamedMosalm/To-Do-List/services"
 	"github.com/gin-gonic/gin"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func StartServer(config config.AppConfig) {
 	r := gin.Default()
 
-	db, err := gorm.Open(postgres.Open(config.DSN), &gorm.Config{})
+	db, err := database.ConnectDB(config.DSN)
 	if err != nil {
 		log.Fatalf("could not connect to the database: %v\n", err)
 	}
 
-	log.Println("Connected to the database")
-
-	if err := db.AutoMigrate(&models.User{}); err != nil {
-		log.Fatalf("database migration failed: %v\n", err)
-	}
-
-	if err := db.AutoMigrate(&models.Task{}); err != nil {
+	if err := database.AutoMigrate(db, &models.User{}, &models.Task{}); err != nil {
 		log.Fatalf("database migration failed: %v\n", err)
 	}
 
