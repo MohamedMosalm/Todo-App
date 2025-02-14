@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/MohamedMosalm/To-Do-List/models"
-	userRepository "github.com/MohamedMosalm/To-Do-List/repositories/userRepository"
+	"github.com/MohamedMosalm/Todo-App/models"
+	userRepository "github.com/MohamedMosalm/Todo-App/repositories/userRepository"
 	"github.com/google/uuid"
 )
 

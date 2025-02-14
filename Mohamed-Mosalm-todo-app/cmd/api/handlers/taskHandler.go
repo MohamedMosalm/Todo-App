@@ -3,12 +3,12 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/MohamedMosalm/To-Do-List/config"
-	"github.com/MohamedMosalm/To-Do-List/dtos"
-	"github.com/MohamedMosalm/To-Do-List/models"
-	"github.com/MohamedMosalm/To-Do-List/services"
-	"github.com/MohamedMosalm/To-Do-List/utils/errors"
-	"github.com/MohamedMosalm/To-Do-List/utils/httputil"
+	"github.com/MohamedMosalm/Todo-App/config"
+	"github.com/MohamedMosalm/Todo-App/dtos"
+	"github.com/MohamedMosalm/Todo-App/models"
+	"github.com/MohamedMosalm/Todo-App/services"
+	"github.com/MohamedMosalm/Todo-App/utils/errors"
+	"github.com/MohamedMosalm/Todo-App/utils/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"

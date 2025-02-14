@@ -1,10 +1,11 @@
 package httputil
 
 import (
-	"github.com/MohamedMosalm/To-Do-List/utils/errors"
-	"github.com/MohamedMosalm/To-Do-List/utils/response"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/MohamedMosalm/Todo-App/utils/errors"
+	"github.com/MohamedMosalm/Todo-App/utils/response"
+	"github.com/gin-gonic/gin"
 )
 
 func HandleError(c *gin.Context, err *errors.AppError) {

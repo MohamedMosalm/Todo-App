@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/MohamedMosalm/To-Do-List/cmd"
-	"github.com/MohamedMosalm/To-Do-List/config"
+	"github.com/MohamedMosalm/Todo-App/cmd"
+	"github.com/MohamedMosalm/Todo-App/config"
 )
 
 func main() {

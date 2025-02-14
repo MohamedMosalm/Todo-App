@@ -3,14 +3,14 @@ package cmd
 import (
 	"log"
 
-	"github.com/MohamedMosalm/To-Do-List/cmd/api/handlers"
-	"github.com/MohamedMosalm/To-Do-List/cmd/api/routes"
-	"github.com/MohamedMosalm/To-Do-List/config"
-	"github.com/MohamedMosalm/To-Do-List/database"
-	"github.com/MohamedMosalm/To-Do-List/models"
-	taskRepository "github.com/MohamedMosalm/To-Do-List/repositories/taskRepository"
-	userRepository "github.com/MohamedMosalm/To-Do-List/repositories/userRepository"
-	"github.com/MohamedMosalm/To-Do-List/services"
+	"github.com/MohamedMosalm/Todo-App/cmd/api/handlers"
+	"github.com/MohamedMosalm/Todo-App/cmd/api/routes"
+	"github.com/MohamedMosalm/Todo-App/config"
+	"github.com/MohamedMosalm/Todo-App/database"
+	"github.com/MohamedMosalm/Todo-App/models"
+	taskRepository "github.com/MohamedMosalm/Todo-App/repositories/taskRepository"
+	userRepository "github.com/MohamedMosalm/Todo-App/repositories/userRepository"
+	"github.com/MohamedMosalm/Todo-App/services"
 	"github.com/gin-gonic/gin"
 )
 

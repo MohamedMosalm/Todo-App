@@ -3,7 +3,7 @@ package dtos
 import (
 	"time"
 
-	"github.com/MohamedMosalm/To-Do-List/models"
+	"github.com/MohamedMosalm/Todo-App/models"
 	"github.com/google/uuid"
 )
 

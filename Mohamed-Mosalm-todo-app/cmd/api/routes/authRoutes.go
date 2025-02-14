@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/MohamedMosalm/To-Do-List/cmd/api/handlers"
+	"github.com/MohamedMosalm/Todo-App/cmd/api/handlers"
 	"github.com/gin-gonic/gin"
 )
 

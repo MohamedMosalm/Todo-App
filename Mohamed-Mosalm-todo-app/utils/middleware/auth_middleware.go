@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MohamedMosalm/To-Do-List/utils/errors"
-	"github.com/MohamedMosalm/To-Do-List/utils/httputil"
+	"github.com/MohamedMosalm/Todo-App/utils/errors"
+	"github.com/MohamedMosalm/Todo-App/utils/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

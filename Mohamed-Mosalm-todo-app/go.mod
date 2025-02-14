@@ -1,4 +1,4 @@
-module github.com/MohamedMosalm/To-Do-List
+module github.com/MohamedMosalm/Todo-App
 
 go 1.22
 
