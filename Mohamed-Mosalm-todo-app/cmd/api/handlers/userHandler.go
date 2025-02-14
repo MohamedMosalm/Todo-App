@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/MohamedMosalm/To-Do-List/config"
 	"github.com/MohamedMosalm/To-Do-List/dtos"
 	"github.com/MohamedMosalm/To-Do-List/models"
 	"github.com/MohamedMosalm/To-Do-List/services"
@@ -18,8 +19,8 @@ type AuthHandler struct {
 	passwordService *auth.PasswordService
 }
 
-func NewAuthHandler(userService services.UserService) (*AuthHandler, error) {
-	jwtService, err := auth.NewJWTService()
+func NewAuthHandler(userService services.UserService, config config.AppConfig) (*AuthHandler, error) {
+	jwtService, err := auth.NewJWTService(config.JWTSecret)
 	if err != nil {
 		return nil, err
 	}

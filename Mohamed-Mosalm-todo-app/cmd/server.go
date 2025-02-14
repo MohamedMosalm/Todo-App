@@ -28,11 +28,11 @@ func StartServer(config config.AppConfig) {
 
 	taskRepo := taskRepository.NewGormTaskRepository(db)
 	taskService := services.NewTaskService(taskRepo)
-	taskHandler := handlers.NewTaskHandler(taskService)
+	taskHandler := handlers.NewTaskHandler(taskService, config)
 
 	userRepo := userRepository.NewGormUserRepository(db)
 	userService := services.NewUserService(userRepo)
-	userHandler, err := handlers.NewAuthHandler(userService)
+	userHandler, err := handlers.NewAuthHandler(userService, config)
 	if err != nil {
 		log.Fatalf("Failed to create auth handler: %v", err)
 	}

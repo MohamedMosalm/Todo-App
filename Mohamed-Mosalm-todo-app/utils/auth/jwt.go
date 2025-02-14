@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,8 +12,7 @@ type JWTService struct {
 	secretKey string
 }
 
-func NewJWTService() (*JWTService, error) {
-	secretKey := os.Getenv("JWT_SECRET")
+func NewJWTService(secretKey string) (*JWTService, error) {
 	if secretKey == "" {
 		return nil, errors.New("JWT_SECRET environment variable not set")
 	}

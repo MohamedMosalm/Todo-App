@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/MohamedMosalm/To-Do-List/config"
 	"github.com/MohamedMosalm/To-Do-List/dtos"
 	"github.com/MohamedMosalm/To-Do-List/models"
 	"github.com/MohamedMosalm/To-Do-List/services"
@@ -17,7 +18,7 @@ type TaskHandler struct {
 	taskService services.TaskService
 }
 
-func NewTaskHandler(taskService services.TaskService) *TaskHandler {
+func NewTaskHandler(taskService services.TaskService, config config.AppConfig) *TaskHandler {
 	return &TaskHandler{
 		taskService: taskService,
 	}
