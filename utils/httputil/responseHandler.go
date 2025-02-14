@@ -11,13 +11,13 @@ func HandleError(c *gin.Context, err *errors.AppError) {
 	resp := response.Response{
 		Status: "error",
 		Error: &response.ErrorInfo{
-			Code:    err.Code,
 			Message: err.Message,
 			Details: "",
 		},
 	}
 	if err.Details != nil {
 		log.Printf("Error details: %v", err.Details)
+		resp.Error.Details = err.Details.Error()
 	}
 	c.JSON(err.Status, resp)
 }

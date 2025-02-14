@@ -44,7 +44,7 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 	task := models.Task{
 		Title:       createTaskDTO.Title,
 		Description: createTaskDTO.Description,
-		Status:      false, // Or createTaskDTO.Status if you add it to the DTO
+		Status:      false,
 		UserID:      userID,
 	}
 
@@ -131,7 +131,7 @@ func (h *TaskHandler) UpdateTask(c *gin.Context) {
 
 	existingTask.Title = updateDTO.Title
 	existingTask.Description = updateDTO.Description
-	existingTask.Status = updateDTO.Status // No validation needed here
+	existingTask.Status = updateDTO.Status
 
 	if err := h.taskService.UpdateTask(existingTask); err != nil {
 		appErr := errors.ErrUpdateTaskFailed
